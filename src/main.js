@@ -6,6 +6,13 @@ import PrimeVue from 'primevue/config'
 import App from './App.vue'
 import router from './router'
 
+// GitHub Pages SPA redirect handler
+const redirect = new URLSearchParams(window.location.search).get('redirect')
+if (redirect) {
+  // Replace current URL with the real path before router initializes
+  window.history.replaceState(null, '', decodeURIComponent(redirect))
+}
+
 // PrimeVue components
 import Button from 'primevue/button'
 import Card from 'primevue/card'
