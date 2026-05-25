@@ -1,0 +1,194 @@
+/* PrimeVue base theme */
+@import 'primevue/resources/themes/lara-dark-indigo/theme.css';
+@import 'primevue/resources/primevue.min.css';
+
+/* ── CSS Variables ─────────────────────────────────────── */
+:root {
+  --mn-bg: #f8f7f4;
+  --mn-surface: #ffffff;
+  --mn-surface-2: #f1ede8;
+  --mn-border: #e8e2da;
+  --mn-text: #1a1a1a;
+  --mn-text-muted: #6b6560;
+  --mn-text-subtle: #9e9890;
+  --mn-accent: #5c6bc0;
+  --mn-accent-hover: #3f51b5;
+  --mn-essay: #e8f4fd;
+  --mn-essay-text: #1565c0;
+  --mn-poem: #fce4ec;
+  --mn-poem-text: #c62828;
+  --mn-story: #e8f5e9;
+  --mn-story-text: #2e7d32;
+  --mn-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --mn-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --mn-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --mn-radius: 16px;
+  --mn-radius-sm: 8px;
+  --mn-radius-xs: 6px;
+  --mn-transition: 0.2s ease;
+}
+
+[data-theme='dark'] {
+  --mn-bg: #0f0f0f;
+  --mn-surface: #1a1a1a;
+  --mn-surface-2: #242424;
+  --mn-border: #2e2e2e;
+  --mn-text: #f0ede8;
+  --mn-text-muted: #a09890;
+  --mn-text-subtle: #6b6560;
+  --mn-accent: #7986cb;
+  --mn-accent-hover: #9fa8da;
+  --mn-essay: #1a2744;
+  --mn-essay-text: #90caf9;
+  --mn-poem: #3b1a22;
+  --mn-poem-text: #f48fb1;
+  --mn-story: #1a2e1c;
+  --mn-story-text: #a5d6a7;
+  --mn-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --mn-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --mn-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Reset & Base ──────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  background: var(--mn-bg);
+  color: var(--mn-text);
+  line-height: 1.6;
+  transition:
+    background var(--mn-transition),
+    color var(--mn-transition);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Typography ────────────────────────────────────────── */
+h1,
+h2,
+h3,
+h4 {
+  line-height: 1.3;
+  font-weight: 700;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* ── PrimeVue overrides ────────────────────────────────── */
+.p-button {
+  border-radius: var(--mn-radius-sm) !important;
+  font-weight: 500 !important;
+  transition: all var(--mn-transition) !important;
+}
+
+.p-card {
+  background: var(--mn-surface) !important;
+  border: 1px solid var(--mn-border) !important;
+  border-radius: var(--mn-radius) !important;
+  box-shadow: var(--mn-shadow-sm) !important;
+  transition: all var(--mn-transition) !important;
+  color: var(--mn-text) !important;
+}
+
+.p-card .p-card-body {
+  padding: 1.25rem !important;
+}
+.p-card .p-card-content {
+  padding: 0 !important;
+}
+
+.p-tag {
+  border-radius: 20px !important;
+  font-size: 0.75rem !important;
+  font-weight: 500 !important;
+  padding: 0.2rem 0.65rem !important;
+}
+
+.p-chip {
+  border-radius: 20px !important;
+  font-size: 0.8rem !important;
+  background: var(--mn-surface-2) !important;
+  color: var(--mn-text-muted) !important;
+  border: 1px solid var(--mn-border) !important;
+}
+
+.p-inputtext,
+.p-textarea {
+  background: var(--mn-surface) !important;
+  border: 1px solid var(--mn-border) !important;
+  border-radius: var(--mn-radius-sm) !important;
+  color: var(--mn-text) !important;
+  width: 100% !important;
+  transition: border-color var(--mn-transition) !important;
+}
+
+.p-inputtext:focus,
+.p-textarea:focus {
+  border-color: var(--mn-accent) !important;
+  box-shadow: 0 0 0 3px rgba(92, 107, 192, 0.15) !important;
+}
+
+.p-divider::before {
+  border-color: var(--mn-border) !important;
+}
+
+.p-skeleton {
+  background: var(--mn-surface-2) !important;
+  border-radius: var(--mn-radius-sm) !important;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--mn-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--mn-text-subtle);
+}
+
+/* ── Utility ───────────────────────────────────────────── */
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.container--wide {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+@media (max-width: 640px) {
+  .container,
+  .container--wide {
+    padding: 0 0.875rem;
+  }
+}
