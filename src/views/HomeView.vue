@@ -223,7 +223,7 @@ onMounted(fetchPosts)
   flex-direction: column;
   align-items: center;
   gap: 0.1rem;
-  padding: 0.5rem 1rem;
+  padding: 0.35rem 0.75rem;
   border-radius: var(--mn-radius-sm);
   border: 1px solid transparent;
   background: transparent;

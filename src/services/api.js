@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // Configure API base URL using environment variable or fallback to production API
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://note-api.haotian.my.id:5965'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://note-api.haotian.my.id'
 
 const publicApi = axios.create({
   baseURL: API_BASE_URL,
