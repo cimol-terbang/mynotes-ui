@@ -72,7 +72,7 @@ const toggleDark = inject('toggleDark')
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.85);
   border-bottom: 1px solid var(--mn-border);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);

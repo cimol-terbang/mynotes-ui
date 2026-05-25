@@ -168,6 +168,12 @@ button {
   border-radius: var(--mn-radius-sm) !important;
 }
 
+/* ── Dark mode navbar ──────────────────────────────────── */
+[data-theme='dark'] .navbar {
+  background: rgba(13, 21, 32, 0.88) !important;
+  box-shadow: 0 1px 0 var(--mn-border), 0 2px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
 /* ── Scrollbar ─────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;
