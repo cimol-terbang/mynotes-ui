@@ -188,16 +188,29 @@ onMounted(fetchPosts)
 
 .category-tabs {
   display: flex;
-  flex-wrap: wrap;
   justify-content: center;
   gap: 0.5rem;
   padding: 0 1rem 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.category-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 @media (max-width: 640px) {
   .category-tabs {
+    justify-content: flex-start;
     padding: 0 0.875rem 2px;
-    gap: 0.4rem;
+    /* Ensure last tab isn't clipped when scrolling */
+    padding-right: 0.875rem;
+  }
+
+  .cat-tab {
+    flex-shrink: 0;
+    padding: 0.4rem 0.75rem;
   }
 }
 
