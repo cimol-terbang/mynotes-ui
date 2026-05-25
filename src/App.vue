@@ -14,7 +14,7 @@ const toggleDark = () => {
 
 onMounted(() => {
   const saved = localStorage.getItem('mn-theme')
-  isDark.value = saved ? saved === 'dark' : true
+  isDark.value = saved ? saved === 'dark' : false
   document.documentElement.setAttribute('data-theme', isDark.value ? 'dark' : 'light')
 })
 

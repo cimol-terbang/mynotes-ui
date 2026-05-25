@@ -1,52 +1,52 @@
 /* PrimeVue base theme */
-@import 'primevue/resources/themes/lara-dark-indigo/theme.css';
+@import 'primevue/resources/themes/lara-light-indigo/theme.css';
 @import 'primevue/resources/primevue.min.css';
 
 /* ── CSS Variables ─────────────────────────────────────── */
 :root {
-  --mn-bg: #f8f7f4;
+  --mn-bg: #eef4fb;
   --mn-surface: #ffffff;
-  --mn-surface-2: #f1ede8;
-  --mn-border: #e8e2da;
-  --mn-text: #1a1a1a;
-  --mn-text-muted: #6b6560;
-  --mn-text-subtle: #9e9890;
-  --mn-accent: #5c6bc0;
-  --mn-accent-hover: #3f51b5;
-  --mn-essay: #e8f4fd;
-  --mn-essay-text: #1565c0;
-  --mn-poem: #fce4ec;
-  --mn-poem-text: #c62828;
-  --mn-story: #e8f5e9;
-  --mn-story-text: #2e7d32;
-  --mn-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --mn-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --mn-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --mn-surface-2: #ddeaf7;
+  --mn-border: #c8ddf0;
+  --mn-text: #1a2a3a;
+  --mn-text-muted: #5a7a96;
+  --mn-text-subtle: #93b4cc;
+  --mn-accent: #3b82c4;
+  --mn-accent-hover: #2563a8;
+  --mn-essay: #e0eeff;
+  --mn-essay-text: #1d4ed8;
+  --mn-poem: #fce7f3;
+  --mn-poem-text: #be185d;
+  --mn-story: #dcfce7;
+  --mn-story-text: #15803d;
+  --mn-shadow-sm: 0 1px 4px rgba(59, 130, 196, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --mn-shadow: 0 4px 18px rgba(59, 130, 196, 0.12);
+  --mn-shadow-lg: 0 8px 32px rgba(59, 130, 196, 0.16);
   --mn-radius: 16px;
-  --mn-radius-sm: 8px;
+  --mn-radius-sm: 10px;
   --mn-radius-xs: 6px;
   --mn-transition: 0.2s ease;
 }
 
 [data-theme='dark'] {
-  --mn-bg: #0f0f0f;
-  --mn-surface: #1a1a1a;
-  --mn-surface-2: #242424;
-  --mn-border: #2e2e2e;
-  --mn-text: #f0ede8;
-  --mn-text-muted: #a09890;
-  --mn-text-subtle: #6b6560;
-  --mn-accent: #7986cb;
-  --mn-accent-hover: #9fa8da;
-  --mn-essay: #1a2744;
-  --mn-essay-text: #90caf9;
-  --mn-poem: #3b1a22;
-  --mn-poem-text: #f48fb1;
-  --mn-story: #1a2e1c;
-  --mn-story-text: #a5d6a7;
-  --mn-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --mn-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --mn-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --mn-bg: #0d1520;
+  --mn-surface: #152030;
+  --mn-surface-2: #1c2d40;
+  --mn-border: #243a52;
+  --mn-text: #ddeeff;
+  --mn-text-muted: #7aaac8;
+  --mn-text-subtle: #3d6a8a;
+  --mn-accent: #60a5d8;
+  --mn-accent-hover: #93c5fd;
+  --mn-essay: #1e3a5f;
+  --mn-essay-text: #93c5fd;
+  --mn-poem: #3b1a2e;
+  --mn-poem-text: #f9a8d4;
+  --mn-story: #14301e;
+  --mn-story-text: #86efac;
+  --mn-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --mn-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --mn-shadow-lg: 0 8px 28px rgba(0, 0, 0, 0.6);
 }
 
 /* ── Reset & Base ──────────────────────────────────────── */
@@ -70,12 +70,22 @@ body {
     'Segoe UI',
     sans-serif;
   background: var(--mn-bg);
+  /* subtle dot texture */
+  background-image:
+    radial-gradient(circle, rgba(59, 130, 196, 0.10) 1px, transparent 1px);
+  background-size: 24px 24px;
   color: var(--mn-text);
   line-height: 1.6;
   transition:
     background var(--mn-transition),
     color var(--mn-transition);
   -webkit-font-smoothing: antialiased;
+}
+
+[data-theme='dark'] body {
+  background-image:
+    radial-gradient(circle, rgba(96, 165, 216, 0.07) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 /* ── Typography ────────────────────────────────────────── */
@@ -146,7 +156,7 @@ button {
 .p-inputtext:focus,
 .p-textarea:focus {
   border-color: var(--mn-accent) !important;
-  box-shadow: 0 0 0 3px rgba(92, 107, 192, 0.15) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 196, 0.15) !important;
 }
 
 .p-divider::before {

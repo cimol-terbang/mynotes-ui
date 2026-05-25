@@ -72,10 +72,11 @@ const toggleDark = inject('toggleDark')
   position: sticky;
   top: 0;
   z-index: 100;
-  background: var(--mn-surface);
+  background: rgba(255, 255, 255, 0.82);
   border-bottom: 1px solid var(--mn-border);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 1px 0 var(--mn-border), 0 2px 12px rgba(59, 130, 196, 0.06);
 }
 
 .navbar__inner {
