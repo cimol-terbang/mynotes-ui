@@ -188,18 +188,16 @@ onMounted(fetchPosts)
 
 .category-tabs {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 0.5rem;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
   padding: 0 1rem 2px;
 }
 
 @media (max-width: 640px) {
   .category-tabs {
-    justify-content: flex-start;
     padding: 0 0.875rem 2px;
+    gap: 0.4rem;
   }
 }
 
