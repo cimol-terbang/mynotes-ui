@@ -4,17 +4,18 @@
     <!-- ── Category Tabs ── -->
     <div class="category-bar">
       <div class="category-tabs">
-        <button
-          v-for="cat in categories"
-          :key="cat.value"
-          class="cat-tab"
-          :class="[{ active: activeCategory === cat.value }, `cat-tab--${cat.value}`]"
-          @click="setCategory(cat.value)"
-        >
-          <span class="cat-tab__decor" aria-hidden="true"></span>
-          <span class="cat-tab__label">{{ cat.label }}</span>
-          <span class="cat-tab__sub">{{ cat.sub }}</span>
-        </button>
+        <div class="seg-control">
+          <button
+            v-for="cat in categories"
+            :key="cat.value"
+            class="seg-btn"
+            :class="[{ active: activeCategory === cat.value }, `seg-btn--${cat.value}`]"
+            @click="setCategory(cat.value)"
+          >
+            <span class="seg-btn__dot" aria-hidden="true"></span>
+            {{ cat.label }}
+          </button>
+        </div>
       </div>
     </div>
 
@@ -107,10 +108,10 @@ const activeCategory = ref('all')
 const activeTag = ref('')
 
 const categories = [
-  { value: 'all',   label: 'All',           sub: 'All Written' },
-  { value: 'essay', label: 'What I Think',  sub: 'Essay' },
-  { value: 'poem',  label: 'What I Feel',   sub: 'Poem' },
-  { value: 'story', label: 'What I Imagine',sub: 'Story' },
+  { value: 'all',   label: 'All' },
+  { value: 'essay', label: 'Essay' },
+  { value: 'poem',  label: 'Poem' },
+  { value: 'story', label: 'Story' },
 ]
 
 const categoryLabel = (val) => {
@@ -181,123 +182,104 @@ onMounted(fetchPosts)
   position: sticky;
   top: 56px;
   z-index: 90;
-  background: rgba(238, 244, 251, 0.85);
+  background: rgba(238, 244, 251, 0.88);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--mn-border);
-  padding: 0.875rem 0;
+  padding: 0.65rem 0;
 }
 
 [data-theme='dark'] .category-bar {
-  background: rgba(13, 21, 32, 0.85);
+  background: rgba(13, 21, 32, 0.88);
 }
 
 .category-tabs {
   display: flex;
   justify-content: center;
-  gap: 0.625rem;
   padding: 0 1rem;
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 
-.category-tabs::-webkit-scrollbar {
-  display: none;
+.category-tabs::-webkit-scrollbar { display: none; }
+
+/* ── Segmented control ── */
+.seg-control {
+  display: inline-flex;
+  align-items: center;
+  background: var(--mn-surface-2);
+  border: 1px solid var(--mn-border);
+  border-radius: 24px;
+  padding: 3px;
+  gap: 2px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.06);
 }
 
-/* ── Tab button ── */
-.cat-tab {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.1rem;
-  padding: 0.55rem 1rem 0.55rem 1.1rem;
-  border-radius: var(--mn-radius-sm);
-  border: 1px solid var(--mn-border);
-  background: var(--mn-surface);
+.seg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.85rem;
+  border-radius: 20px;
+  border: none;
+  background: transparent;
   color: var(--mn-text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all var(--mn-transition);
   white-space: nowrap;
-  flex-shrink: 0;
-  overflow: hidden;
-  box-shadow: var(--mn-shadow-sm);
+  letter-spacing: -0.01em;
 }
 
-/* left-side color bar via ::before */
-.cat-tab::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 20%;
-  height: 60%;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
-  background: var(--mn-border);
+.seg-btn:hover {
+  color: var(--mn-text);
+  background: rgba(255,255,255,0.5);
+}
+
+/* active — filled pill */
+.seg-btn--all.active {
+  background: var(--mn-accent);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(59,130,196,0.3);
+}
+.seg-btn--essay.active {
+  background: var(--mn-essay);
+  color: var(--mn-essay-text);
+  box-shadow: 0 2px 8px rgba(29,78,216,0.15);
+}
+.seg-btn--poem.active {
+  background: var(--mn-poem);
+  color: var(--mn-poem-text);
+  box-shadow: 0 2px 8px rgba(190,24,93,0.15);
+}
+.seg-btn--story.active {
+  background: var(--mn-story);
+  color: var(--mn-story-text);
+  box-shadow: 0 2px 8px rgba(21,128,61,0.15);
+}
+
+/* colored dot decor */
+.seg-btn__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
   transition: all var(--mn-transition);
 }
 
-.cat-tab--all::before    { background: var(--mn-accent); opacity: 0.35; }
-.cat-tab--essay::before  { background: var(--mn-essay-text); opacity: 0.35; }
-.cat-tab--poem::before   { background: var(--mn-poem-text); opacity: 0.35; }
-.cat-tab--story::before  { background: var(--mn-story-text); opacity: 0.35; }
+.seg-btn--all    .seg-btn__dot { background: var(--mn-accent); opacity: 0.5; }
+.seg-btn--essay  .seg-btn__dot { background: var(--mn-essay-text); opacity: 0.4; }
+.seg-btn--poem   .seg-btn__dot { background: var(--mn-poem-text);  opacity: 0.4; }
+.seg-btn--story  .seg-btn__dot { background: var(--mn-story-text); opacity: 0.4; }
 
-.cat-tab:hover {
-  border-color: var(--mn-accent);
-  color: var(--mn-text);
-  transform: translateY(-1px);
-  box-shadow: var(--mn-shadow);
-}
-
-.cat-tab.active {
-  border-color: var(--mn-accent);
-  background: linear-gradient(135deg, var(--mn-surface) 60%, var(--mn-surface-2));
-  color: var(--mn-text);
-  box-shadow: var(--mn-shadow);
-}
-
-.cat-tab--all.active::before    { background: var(--mn-accent); opacity: 1; width: 4px; }
-.cat-tab--essay.active::before  { background: var(--mn-essay-text); opacity: 1; width: 4px; }
-.cat-tab--poem.active::before   { background: var(--mn-poem-text); opacity: 1; width: 4px; }
-.cat-tab--story.active::before  { background: var(--mn-story-text); opacity: 1; width: 4px; }
-
-/* shimmer on active */
-.cat-tab.active::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%);
-  pointer-events: none;
-}
-
-.cat-tab__decor {
-  display: none; /* kept in DOM but unused visually */
-}
-
-.cat-tab__label {
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--mn-text);
-}
-
-.cat-tab__sub {
-  font-size: 0.63rem;
-  color: var(--mn-text-subtle);
-  font-weight: 500;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-}
-
-.cat-tab.active .cat-tab__sub {
-  color: var(--mn-accent);
-}
+.seg-btn.active .seg-btn__dot { opacity: 1; transform: scale(1.15); }
+.seg-btn--all.active .seg-btn__dot { background: rgba(255,255,255,0.75); }
 
 /* ── Posts section ── */
 .posts-section {
-  padding: 1.5rem 0 3rem;
+  padding: 1.25rem 0 3rem;
 }
 
 /* ── Tag banner ── */
@@ -315,9 +297,7 @@ onMounted(fetchPosts)
   box-shadow: var(--mn-shadow-sm);
 }
 
-.tag-banner strong {
-  color: var(--mn-accent);
-}
+.tag-banner strong { color: var(--mn-accent); }
 
 .tag-banner__clear {
   margin-left: auto;
@@ -330,14 +310,12 @@ onMounted(fetchPosts)
   transition: color var(--mn-transition);
 }
 
-.tag-banner__clear:hover {
-  color: var(--mn-text);
-}
+.tag-banner__clear:hover { color: var(--mn-text); }
 
 /* ── Grid ── */
 .posts-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1rem;
 }
 
@@ -347,36 +325,58 @@ onMounted(fetchPosts)
   background: var(--mn-surface);
   border: 1px solid var(--mn-border);
   border-radius: var(--mn-radius);
-  padding: 1.25rem 1.25rem 1.25rem 1.5rem;
+  padding: 1.1rem 1.1rem 1rem;
   cursor: pointer;
   transition: all var(--mn-transition);
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.55rem;
   box-shadow: var(--mn-shadow-sm);
   overflow: hidden;
 }
 
-/* colored left accent bar per category */
+/* top-right decorative circle blob */
+.post-card::after {
+  content: '';
+  position: absolute;
+  top: -18px;
+  right: -18px;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  opacity: 0.12;
+  transition: opacity var(--mn-transition);
+  pointer-events: none;
+}
+
+.post-card--essay::after { background: #3b82f6; }
+.post-card--poem::after  { background: #ec4899; }
+.post-card--story::after { background: #22c55e; }
+
+/* bottom-left small dot accent */
 .post-card::before {
   content: '';
   position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  border-radius: var(--mn-radius) 0 0 var(--mn-radius);
+  bottom: 10px;
+  left: 10px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  opacity: 0.25;
+  pointer-events: none;
 }
 
-.post-card--essay::before { background: linear-gradient(180deg, #93c5fd, #3b82f6); }
-.post-card--poem::before  { background: linear-gradient(180deg, #f9a8d4, #ec4899); }
-.post-card--story::before { background: linear-gradient(180deg, #86efac, #22c55e); }
+.post-card--essay::before { background: #3b82f6; }
+.post-card--poem::before  { background: #ec4899; }
+.post-card--story::before { background: #22c55e; }
 
 .post-card:hover {
   transform: translateY(-3px);
   box-shadow: var(--mn-shadow);
   border-color: var(--mn-accent);
 }
+
+.post-card:hover::after { opacity: 0.2; }
 
 .post-card__cat {
   display: flex;
@@ -385,34 +385,25 @@ onMounted(fetchPosts)
 }
 
 .cat-badge {
-  font-size: 0.68rem;
+  font-size: 0.67rem;
   font-weight: 700;
-  padding: 0.18rem 0.6rem;
+  padding: 0.18rem 0.55rem;
   border-radius: 20px;
   letter-spacing: 0.03em;
   text-transform: uppercase;
 }
 
-.cat-badge--essay {
-  background: var(--mn-essay);
-  color: var(--mn-essay-text);
-}
-.cat-badge--poem {
-  background: var(--mn-poem);
-  color: var(--mn-poem-text);
-}
-.cat-badge--story {
-  background: var(--mn-story);
-  color: var(--mn-story-text);
-}
+.cat-badge--essay { background: var(--mn-essay); color: var(--mn-essay-text); }
+.cat-badge--poem  { background: var(--mn-poem);  color: var(--mn-poem-text); }
+.cat-badge--story { background: var(--mn-story); color: var(--mn-story-text); }
 
 .post-card__date {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--mn-text-subtle);
 }
 
 .post-card__title {
-  font-size: 1rem;
+  font-size: 0.975rem;
   font-weight: 700;
   color: var(--mn-text);
   line-height: 1.4;
@@ -420,7 +411,7 @@ onMounted(fetchPosts)
 }
 
 .post-card__preview {
-  font-size: 0.85rem;
+  font-size: 0.83rem;
   color: var(--mn-text-muted);
   line-height: 1.6;
   flex: 1;
@@ -430,22 +421,22 @@ onMounted(fetchPosts)
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 0.25rem;
+  margin-top: 0.15rem;
 }
 
 .post-card__tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.3rem;
+  gap: 0.25rem;
 }
 
 .tag-pill {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--mn-text-subtle);
   cursor: pointer;
   transition: color var(--mn-transition);
   background: var(--mn-surface-2);
-  padding: 0.1rem 0.45rem;
+  padding: 0.08rem 0.4rem;
   border-radius: 20px;
   border: 1px solid var(--mn-border);
 }
@@ -456,12 +447,12 @@ onMounted(fetchPosts)
 }
 
 .post-card__read {
-  font-size: 0.75rem;
+  font-size: 0.73rem;
   font-weight: 600;
   color: var(--mn-accent);
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.25rem;
   white-space: nowrap;
 }
 
@@ -470,7 +461,7 @@ onMounted(fetchPosts)
   background: var(--mn-surface);
   border: 1px solid var(--mn-border);
   border-radius: var(--mn-radius);
-  padding: 1.25rem;
+  padding: 1.1rem;
 }
 
 .mb-1 { margin-bottom: 0.25rem; }
@@ -499,11 +490,12 @@ onMounted(fetchPosts)
     grid-template-columns: 1fr;
   }
   .category-tabs {
-    justify-content: flex-start;
+    justify-content: center;
     padding: 0 0.875rem;
   }
-  .cat-tab {
-    padding: 0.45rem 0.875rem 0.45rem 1rem;
+  .seg-btn {
+    padding: 0.28rem 0.7rem;
+    font-size: 0.75rem;
   }
 }
 </style>
