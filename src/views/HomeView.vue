@@ -3,20 +3,18 @@
 
     <!-- ── Category Tabs ── -->
     <div class="category-bar">
-      <div class="container--wide">
-        <div class="category-tabs">
-          <button
-            v-for="cat in categories"
-            :key="cat.value"
-            class="cat-tab"
-            :class="{ active: activeCategory === cat.value }"
-            @click="setCategory(cat.value)"
-          >
-            <span class="cat-tab__icon">{{ cat.icon }}</span>
-            <span class="cat-tab__label">{{ cat.label }}</span>
-            <span class="cat-tab__sub">{{ cat.sub }}</span>
-          </button>
-        </div>
+      <div class="category-tabs">
+        <button
+          v-for="cat in categories"
+          :key="cat.value"
+          class="cat-tab"
+          :class="{ active: activeCategory === cat.value }"
+          @click="setCategory(cat.value)"
+        >
+          <span class="cat-tab__icon">{{ cat.icon }}</span>
+          <span class="cat-tab__label">{{ cat.label }}</span>
+          <span class="cat-tab__sub">{{ cat.sub }}</span>
+        </button>
       </div>
     </div>
 
@@ -195,7 +193,14 @@ onMounted(fetchPosts)
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  padding-bottom: 2px;
+  padding: 0 1rem 2px;
+}
+
+@media (max-width: 640px) {
+  .category-tabs {
+    justify-content: flex-start;
+    padding: 0 0.875rem 2px;
+  }
 }
 
 .category-tabs::-webkit-scrollbar {
