@@ -107,7 +107,7 @@
                 rows="4"
                 required
                 :disabled="submitting"
-                auto-resize
+                style="resize: vertical;"
               />
             </div>
             <div class="form-actions">

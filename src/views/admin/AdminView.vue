@@ -176,7 +176,7 @@
                       placeholder="Write your note here in Markdown..."
                       rows="12"
                       required
-                      auto-resize
+                      style="resize: vertical; min-height: 300px;"
                     />
                   </div>
 
@@ -456,7 +456,7 @@
 
           <div class="form-field">
             <label class="form-label">Content (Markdown)</label>
-            <Textarea v-model="editForm.content" rows="12" auto-resize />
+            <Textarea v-model="editForm.content" rows="12" style="resize: vertical; min-height: 300px;" />
           </div>
 
           <div class="editor-footer">
