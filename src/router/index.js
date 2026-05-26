@@ -30,8 +30,10 @@ const router = createRouter({
       component: () => import('../views/AboutView.vue'),
     },
   ],
-  scrollBehavior() {
-    return { top: 0 }
+  scrollBehavior(to, from) {
+    if (to.path !== from.path) {
+      return { top: 0 }
+    }
   },
 })
 
