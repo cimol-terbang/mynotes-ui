@@ -32,6 +32,7 @@
             </div>
             <p class="vision-text">
               This is a space for reflection, contemplation, and careful thought. Through essays and spiritual writing, it seeks to explore the deeper questions of existence, belief, meaning, and the human experience.
+         </p>
           </template>
         </Card>
       </section>
