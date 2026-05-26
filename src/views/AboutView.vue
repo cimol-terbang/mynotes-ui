@@ -28,14 +28,10 @@
           <template #content>
             <div class="vision-header">
               <span class="vision-chip">Our Vision</span>
-              <h2>The Reading Sanctuary</h2>
+              <h2>A Space for Reflection and Meaning</h2>
             </div>
             <p class="vision-text">
-              In a fast-paced digital world, this space is designed as a home for slow, mindful reading. 
-              Here, writing is a mapping of the mind and the heart — a quiet landscape of observation, 
-              rhythm, and creative narratives. The layout is deliberately distraction-free, 
-              inviting you to pause, read, and reflect.
-            </p>
+              This is a space for reflection, contemplation, and careful thought. Through essays and spiritual writing, it seeks to explore the deeper questions of existence, belief, meaning, and the human experience.
           </template>
         </Card>
       </section>
