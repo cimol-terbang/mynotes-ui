@@ -159,7 +159,7 @@ const goToTag = (tag) => {
 
 const stripMarkdown = (text) =>
   text
-    .replace(/!\[.*?\]\(.*?\)/g, '')   // remove images ![alt](url)
+    .replace(/!\[[^\]]*\]\((.+?\.(?:png|jpg|jpeg|gif|webp|svg|bmp))(\s+["'].*?["'])?\)/gi, '')   // remove images robustly
     .replace(/\[.*?\]\(.*?\)/g, '$1')  // remove links, keep text
     .replace(/[#*_`>~\-]+/g, '')       // remove common md symbols
     .replace(/\s+/g, ' ')              // collapse whitespace

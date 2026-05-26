@@ -108,6 +108,18 @@ export const adminService = {
     formData.append('image', imageFile)
     return adminApi.post('/admin/upload', formData)
   },
+
+  getImages() {
+    return adminApi.get('/admin/images')
+  },
+
+  renameImage(oldName, newName) {
+    return adminApi.put('/admin/images/rename', { oldName, newName })
+  },
+
+  deleteImage(filename) {
+    return adminApi.delete(`/admin/images/${filename}`)
+  },
 }
 
 export default publicApi

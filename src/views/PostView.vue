@@ -130,20 +130,37 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
-import { marked } from 'marked'
+import { marked, Marked } from 'marked'
 import AppLayout from '@/components/AppLayout.vue'
 import { postService, commentService } from '@/services/api'
 
 // Rewrite relative /uploads/ image URLs to absolute backend URL
-// This handles posts saved before the backend returned full URLs
-const API_BASE = import.meta.env.VITE_API_URL || 'http://note-api.haotian.my.id:5965'
-const renderer = new marked.Renderer()
-renderer.image = ({ href, title, text }) => {
-  const src = href?.startsWith('/uploads/') ? `${API_BASE}${href}` : href
-  const titleAttr = title ? ` title="${title}"` : ''
-  return `<img src="${src}" alt="${text}"${titleAttr} />`
+const API_BASE = import.meta.env.VITE_API_URL || 'https://note-api.haotian.my.id'
+
+const markedInstance = new Marked()
+markedInstance.use({
+  renderer: {
+    image({ href, title, text }) {
+      const src = href?.startsWith('/uploads/') ? `${API_BASE}${href}` : (href || '')
+      const titleAttr = title ? ` title="${title}"` : ''
+      return `<img src="${src}" alt="${text || ''}"${titleAttr} style="max-width:100%;border-radius:12px;margin:1rem 0;display:block;" />`
+    }
+  }
+})
+
+function encodeMarkdownImages(content) {
+  if (!content) return ''
+  return content.replace(/!\[([^\]]*)\]\((.+?\.(?:png|jpg|jpeg|gif|webp|svg|bmp))(\s+["'].*?["'])?\)/gi, (match, alt, url, title) => {
+    const encodedUrl = url.replace(/ /g, '%20')
+    const titleStr = title || ''
+    return `![${alt}](${encodedUrl}${titleStr})`
+  })
 }
-marked.use({ renderer })
+
+function parseMarkdown(content) {
+  const processed = encodeMarkdownImages(content)
+  return markedInstance.parse(processed, { async: false })
+}
 
 const route = useRoute()
 const router = useRouter()
@@ -161,7 +178,7 @@ const submitting = ref(false)
 
 const renderedContent = computed(() => {
   if (!post.value) return ''
-  return marked.parse(post.value.content)
+  return parseMarkdown(post.value.content)
 })
 
 const categoryLabel = (val) => {

@@ -74,8 +74,18 @@ const categoryLabel = (val) => {
 const formatDate = (d) =>
   new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
 
-const truncate = (text, len) =>
-  text.length <= len ? text : text.slice(0, len).trimEnd() + '…'
+const stripMarkdown = (text) =>
+  text
+    .replace(/!\[[^\]]*\]\((.+?\.(?:png|jpg|jpeg|gif|webp|svg|bmp))(\s+["'].*?["'])?\)/gi, '')   // remove images robustly
+    .replace(/\[.*?\]\(.*?\)/g, '$1')  // remove links, keep text
+    .replace(/[#*_`>~\-]+/g, '')       // remove common md symbols
+    .replace(/\s+/g, ' ')              // collapse whitespace
+    .trim()
+
+const truncate = (text, len) => {
+  const plain = stripMarkdown(text)
+  return plain.length <= len ? plain : plain.slice(0, len).trimEnd() + '…'
+}
 
 const fetchPosts = async () => {
   loading.value = true

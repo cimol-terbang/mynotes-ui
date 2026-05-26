@@ -66,7 +66,25 @@
           />
         </header>
 
-        <div class="dashboard-grid">
+        <!-- Dashboard Tabs Navigation -->
+        <div class="dashboard-tabs">
+          <button
+            class="dash-tab-btn"
+            :class="{ active: currentTab === 'notes' }"
+            @click="currentTab = 'notes'"
+          >
+            <i class="pi pi-file-edit" /> Notes Editor
+          </button>
+          <button
+            class="dash-tab-btn"
+            :class="{ active: currentTab === 'images' }"
+            @click="currentTab = 'images'"
+          >
+            <i class="pi pi-images" /> Media Library
+          </button>
+        </div>
+
+        <div v-if="currentTab === 'notes'" class="dashboard-grid">
           <!-- Left: Compose Post -->
           <div class="dashboard-left">
             <Card class="editor-card">
@@ -273,6 +291,113 @@
             </Card>
           </div>
         </div>
+
+        <!-- Media Library Tab -->
+        <div v-else-if="currentTab === 'images'" class="media-library">
+          <Card class="media-card">
+            <template #content>
+              <div class="card-header">
+                <h2>Media Library</h2>
+                <span class="posts-count-badge">{{ images.length }} total</span>
+              </div>
+
+              <!-- Skeleton loading -->
+              <div v-if="fetchingImages" class="images-skeleton-grid">
+                <div v-for="n in 8" :key="n" class="skeleton-img-card">
+                  <Skeleton width="100%" height="150px" class="mb-2" />
+                  <Skeleton width="60%" height="1rem" class="mb-1" />
+                  <Skeleton width="40%" height="0.8rem" />
+                </div>
+              </div>
+
+              <!-- Empty state -->
+              <div v-else-if="images.length === 0" class="empty-posts-state">
+                <i class="pi pi-images" style="font-size:2.5rem;color:var(--mn-border);margin-bottom:0.5rem;" />
+                <p>No images uploaded yet. Upload images while composing notes to see them here.</p>
+              </div>
+
+              <!-- Images Grid -->
+              <div v-else class="images-grid">
+                <div v-for="img in images" :key="img.filename" class="image-card">
+                  <div class="image-card__preview" @click="downloadImage(img)" title="Click to download image">
+                    <img :src="`${API_BASE_URL}${img.url}`" :alt="img.filename" />
+                  </div>
+
+                  <div class="image-card__body">
+                    <!-- Filename & Inline Rename form -->
+                    <div class="image-card__name-container">
+                      <div v-if="editingImageName === img.filename" class="rename-inline-form">
+                        <InputText
+                          v-model="newImageName"
+                          class="rename-input"
+                          @keyup.enter="submitRenameImage(img)"
+                          @keyup.esc="cancelRenameImage"
+                          autofocus
+                        />
+                        <div class="rename-actions">
+                          <Button
+                            icon="pi pi-check"
+                            severity="success"
+                            text
+                            rounded
+                            size="small"
+                            @click="submitRenameImage(img)"
+                          />
+                          <Button
+                            icon="pi pi-times"
+                            severity="danger"
+                            text
+                            rounded
+                            size="small"
+                            @click="cancelRenameImage"
+                          />
+                        </div>
+                      </div>
+                      <div v-else class="filename-row">
+                        <span class="image-filename" :title="img.filename">{{ img.filename }}</span>
+                        <button class="rename-trigger-btn" title="Rename Image" @click="startRenameImage(img)">
+                          <i class="pi pi-pencil" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="image-card__meta">
+                      <span class="image-size">{{ formatSize(img.size) }}</span>
+                      <span class="image-date">{{ formatDate(img.createdAt) }}</span>
+                    </div>
+
+                    <div class="image-card__actions">
+                      <Button
+                        label="Copy MD"
+                        icon="pi pi-copy"
+                        outlined
+                        severity="secondary"
+                        class="action-btn-block"
+                        @click="copyMarkdown(img)"
+                      />
+                      <div class="action-btn-row">
+                        <Button
+                          icon="pi pi-download"
+                          outlined
+                          severity="info"
+                          title="Download"
+                          @click="downloadImage(img)"
+                        />
+                        <Button
+                          icon="pi pi-trash"
+                          outlined
+                          severity="danger"
+                          title="Delete"
+                          @click="deleteImage(img)"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </Card>
+        </div>
       </div>
     </div>
 
@@ -311,6 +436,24 @@
             </div>
           </div>
 
+          <!-- Image Uploader in Edit Modal -->
+          <div class="form-field uploader-field">
+            <label class="form-label">Upload Image</label>
+            <div class="uploader-box" :class="{ uploading: editUploading }">
+              <input
+                type="file"
+                accept="image/*"
+                ref="editFileInput"
+                style="display: none"
+                @change="handleEditImageUpload"
+              />
+              <div class="uploader-content" @click="$refs.editFileInput.click()">
+                <i :class="editUploading ? 'pi pi-spin pi-spinner' : 'pi pi-image'" />
+                <span>{{ editUploading ? 'Uploading to API...' : 'Click to upload and embed image' }}</span>
+              </div>
+            </div>
+          </div>
+
           <div class="form-field">
             <label class="form-label">Content (Markdown)</label>
             <Textarea v-model="editForm.content" rows="12" auto-resize />
@@ -343,12 +486,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import AppLayout from '@/components/AppLayout.vue'
 import { adminService, postService, setAdminPassword, clearAdminPassword } from '@/services/api'
 import { useToast } from 'primevue/usetoast'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://note-api.haotian.my.id:5965'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://note-api.haotian.my.id'
 
 const toast = useToast()
 
@@ -370,6 +513,14 @@ const saving = ref(false)
 const editorMode = ref('edit')
 const uploading = ref(false)
 const creating = ref(false)
+
+// Image Management refs
+const currentTab = ref('notes')
+const images = ref([])
+const fetchingImages = ref(false)
+const editingImageName = ref(null)
+const newImageName = ref('')
+const editUploading = ref(false)
 
 const newPost = ref({
   title: '',
@@ -408,9 +559,10 @@ const renderedContent = computed(() => {
     .replace(/^# (.*$)/gim, '<h1>$1</h1>')
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.*?)\*/g, '<em>$1</em>')
-    .replace(/!\[(.*?)\]\((.*?)\)/g, (match, alt, path) => {
+    .replace(/!\[([^\]]*)\]\((.+?\.(?:png|jpg|jpeg|gif|webp|svg|bmp))(\s+["'].*?["'])?\)/gi, (match, alt, path, title) => {
       const fullUrl = path.startsWith('http') ? path : API_BASE_URL + path
-      return `<img src="${fullUrl}" alt="${alt}" class="preview-img" />`
+      const encodedUrl = fullUrl.replace(/ /g, "%20")
+      return `<img src="${encodedUrl}" alt="${alt}" class="preview-img" />`
     })
     .split('\n\n')
     .map((p) => p.trim() ? `<p>${p.replace(/\n/g, '<br>')}</p>` : '')
@@ -479,7 +631,8 @@ const handleImageUpload = async (event) => {
   try {
     const res = await adminService.uploadImage(file)
     const url = res.data.url
-    const imageMarkdown = `![image](${url})`
+    const encodedUrl = url.replace(/ /g, "%20")
+    const imageMarkdown = `![image](${encodedUrl})`
     newPost.value.content += `\n\n${imageMarkdown}\n`
     toast.add({
       severity: 'success',
@@ -499,6 +652,144 @@ const handleImageUpload = async (event) => {
     event.target.value = '' // Reset input
   }
 }
+
+const handleEditImageUpload = async (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+  editUploading.value = true
+  try {
+    const res = await adminService.uploadImage(file)
+    const url = res.data.url
+    const encodedUrl = url.replace(/ /g, "%20")
+    const imageMarkdown = `![image](${encodedUrl})`
+    editForm.value.content += `\n\n${imageMarkdown}\n`
+    toast.add({
+      severity: 'success',
+      summary: 'Image Uploaded',
+      detail: 'Embedded into edit content.',
+      life: 3000,
+    })
+  } catch (err) {
+    toast.add({
+      severity: 'error',
+      summary: 'Upload Failed',
+      detail: err.response?.data?.error || 'Failed to upload image.',
+      life: 3000,
+    })
+  } finally {
+    editUploading.value = false
+    event.target.value = '' // Reset input
+  }
+}
+
+const fetchImages = async () => {
+  fetchingImages.value = true
+  try {
+    const res = await adminService.getImages()
+    images.value = res.data
+  } catch (err) {
+    toast.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Failed to load media library.',
+      life: 3000,
+    })
+  } finally {
+    fetchingImages.value = false
+  }
+}
+
+const startRenameImage = (img) => {
+  editingImageName.value = img.filename
+  newImageName.value = img.filename
+}
+
+const cancelRenameImage = () => {
+  editingImageName.value = null
+  newImageName.value = ''
+}
+
+const submitRenameImage = async (img) => {
+  if (!newImageName.value || newImageName.value === img.filename) {
+    cancelRenameImage()
+    return
+  }
+  try {
+    await adminService.renameImage(img.filename, newImageName.value)
+    toast.add({
+      severity: 'success',
+      summary: 'Renamed',
+      detail: 'Image renamed and post references updated!',
+      life: 3000,
+    })
+    cancelRenameImage()
+    fetchImages()
+    fetchPosts() // Refresh posts as their markdown links might have been updated!
+  } catch (err) {
+    toast.add({
+      severity: 'error',
+      summary: 'Rename Failed',
+      detail: err.response?.data?.error || 'Failed to rename image.',
+      life: 3000,
+    })
+  }
+}
+
+const downloadImage = (img) => {
+  const downloadUrl = `${API_BASE_URL}/admin/images/download/${img.filename}`
+  const link = document.createElement('a')
+  link.href = downloadUrl
+  link.setAttribute('download', img.filename)
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+
+const deleteImage = async (img) => {
+  if (!confirm(`Are you sure you want to permanently delete "${img.filename}"?`)) return
+  try {
+    await adminService.deleteImage(img.filename)
+    toast.add({
+      severity: 'success',
+      summary: 'Deleted',
+      detail: 'Image removed from storage.',
+      life: 3000,
+    })
+    fetchImages()
+  } catch (err) {
+    toast.add({
+      severity: 'error',
+      summary: 'Delete Failed',
+      detail: 'Could not delete the image.',
+      life: 3000,
+    })
+  }
+}
+
+const copyMarkdown = (img) => {
+  const md = `![image](${img.url.replace(/ /g, '%20')})`
+  navigator.clipboard.writeText(md)
+  toast.add({
+    severity: 'info',
+    summary: 'Copied!',
+    detail: 'Markdown image syntax copied to clipboard.',
+    life: 2000,
+  })
+}
+
+const formatSize = (bytes) => {
+  if (bytes === 0) return '0 Bytes'
+  const k = 1024
+  const sizes = ['Bytes', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+}
+
+watch(currentTab, (newTab) => {
+  if (newTab === 'images') {
+    fetchImages()
+  }
+})
 
 const submitPost = async () => {
   if (!newPost.value.title || !newPost.value.content || !newPost.value.slug) {
@@ -1339,6 +1630,207 @@ onMounted(() => {
 }
 
 .modal-close:hover { color: var(--mn-text); }
+
+/* ── Dashboard Tab Navigation ── */
+.dashboard-tabs {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--mn-border);
+  padding-bottom: 0.5rem;
+}
+
+.dash-tab-btn {
+  background: transparent;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 0.5rem 1rem;
+  color: var(--mn-text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-bottom: 2px solid transparent;
+  transition: all var(--mn-transition);
+}
+
+.dash-tab-btn:hover {
+  color: var(--mn-text);
+}
+
+.dash-tab-btn.active {
+  color: var(--mn-accent);
+  border-bottom-color: var(--mn-accent);
+}
+
+/* ── Media Library Grid ── */
+.media-card {
+  border-radius: var(--mn-radius) !important;
+  background: var(--mn-surface) !important;
+  border: 1px solid var(--mn-border) !important;
+}
+
+.images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+  padding: 0.5rem 0;
+}
+
+.image-card {
+  background: var(--mn-surface-2);
+  border: 1px solid var(--mn-border);
+  border-radius: var(--mn-radius-sm);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--mn-shadow-sm);
+  transition: all var(--mn-transition);
+}
+
+.image-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--mn-shadow);
+  border-color: var(--mn-accent);
+}
+
+.image-card__preview {
+  height: 140px;
+  background: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+}
+
+.image-card__preview img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform var(--mn-transition);
+}
+
+.image-card:hover .image-card__preview img {
+  transform: scale(1.05);
+}
+
+.image-card__body {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.image-card__name-container {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+}
+
+.filename-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 0.5rem;
+}
+
+.image-filename {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--mn-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+
+.rename-trigger-btn {
+  background: none;
+  border: none;
+  color: var(--mn-text-subtle);
+  cursor: pointer;
+  padding: 0.2rem;
+  border-radius: 4px;
+  transition: color var(--mn-transition);
+}
+
+.rename-trigger-btn:hover {
+  color: var(--mn-accent);
+}
+
+.rename-inline-form {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.rename-input {
+  font-size: 0.8rem !important;
+  padding: 0.35rem 0.5rem !important;
+  flex: 1;
+}
+
+.rename-actions {
+  display: flex;
+  gap: 0.1rem;
+}
+
+.image-card__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: var(--mn-text-subtle);
+  border-bottom: 1px solid var(--mn-border);
+  padding-bottom: 0.5rem;
+}
+
+.image-card__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.action-btn-block {
+  width: 100%;
+  font-size: 0.8rem !important;
+  padding: 0.4rem !important;
+  justify-content: center;
+}
+
+.action-btn-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-btn-row :deep(.p-button) {
+  flex: 1;
+  font-size: 0.8rem !important;
+  padding: 0.4rem !important;
+  justify-content: center;
+}
+
+/* ── Image Skeletons Grid ── */
+.images-skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.skeleton-img-card {
+  background: var(--mn-surface-2);
+  border: 1px solid var(--mn-border);
+  border-radius: var(--mn-radius-sm);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+}
 
 /* ── Responsive dashboard ── */
 @media (max-width: 900px) {
