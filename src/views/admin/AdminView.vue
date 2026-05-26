@@ -224,10 +224,13 @@
                 </div>
 
                 <div v-else class="posts-list">
-                  <div v-for="p in posts" :key="p._id" class="post-row">
+                  <div v-for="p in posts" :key="p.id" class="post-row">
                     <div class="post-row-info">
                       <div class="post-row-meta">
                         <span class="cat-badge" :class="`cat-badge--${p.category}`">{{ p.category }}</span>
+                        <span class="status-badge" :class="p.isPublished ? 'status--live' : 'status--draft'">
+                          {{ p.isPublished ? 'live' : 'draft' }}
+                        </span>
                         <span class="post-row-date">{{ formatDate(p.createdAt) }}</span>
                       </div>
                       <h3 class="post-row-title">{{ p.title }}</h3>
@@ -236,14 +239,34 @@
                       </div>
                     </div>
 
-                    <Button
-                      icon="pi pi-trash"
-                      severity="danger"
-                      outlined
-                      class="delete-btn"
-                      :loading="deletingId === p._id"
-                      @click="confirmDelete(p)"
-                    />
+                    <div class="post-row-actions">
+                      <Button
+                        :icon="togglingId === p.id ? 'pi pi-spin pi-spinner' : (p.isPublished ? 'pi pi-eye-slash' : 'pi pi-eye')"
+                        :title="p.isPublished ? 'Unpublish' : 'Publish'"
+                        severity="secondary"
+                        outlined
+                        class="action-btn"
+                        :loading="togglingId === p.id"
+                        @click="togglePublish(p)"
+                      />
+                      <Button
+                        icon="pi pi-pencil"
+                        title="Edit"
+                        severity="info"
+                        outlined
+                        class="action-btn"
+                        @click="openEdit(p)"
+                      />
+                      <Button
+                        icon="pi pi-trash"
+                        title="Delete"
+                        severity="danger"
+                        outlined
+                        class="action-btn delete-btn"
+                        :loading="deletingId === p.id"
+                        @click="confirmDelete(p)"
+                      />
+                    </div>
                   </div>
                 </div>
               </template>
@@ -252,6 +275,70 @@
         </div>
       </div>
     </div>
+
+    <!-- ── Edit Modal ── -->
+    <div v-if="editingPost" class="modal-overlay" @click.self="closeEdit">
+      <div class="modal-box">
+        <div class="modal-header">
+          <h2>Edit Post</h2>
+          <button class="modal-close" @click="closeEdit"><i class="pi pi-times" /></button>
+        </div>
+
+        <div class="editor-form">
+          <div class="form-grid-2">
+            <div class="form-field">
+              <label class="form-label">Title</label>
+              <InputText v-model="editForm.title" placeholder="Note title..." />
+            </div>
+            <div class="form-field">
+              <label class="form-label">Slug</label>
+              <InputText v-model="editForm.slug" placeholder="note-slug" />
+            </div>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-field">
+              <label class="form-label">Category</label>
+              <select v-model="editForm.category" class="custom-select">
+                <option value="essay">🧠 What I Think (Essay)</option>
+                <option value="poem">🫀 What I Feel (Poem)</option>
+                <option value="story">✨ What I Imagine (Story)</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label class="form-label">Tags (comma-separated)</label>
+              <InputText v-model="editForm.tagsString" placeholder="tag1, tag2" />
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label class="form-label">Content (Markdown)</label>
+            <Textarea v-model="editForm.content" rows="12" auto-resize />
+          </div>
+
+          <div class="editor-footer">
+            <div class="publish-toggle">
+              <label class="switch-label">
+                <input type="checkbox" v-model="editForm.isPublished" />
+                <span class="switch-custom"></span>
+                <span class="label-text">{{ editForm.isPublished ? 'Publish Live' : 'Save as Draft' }}</span>
+              </label>
+            </div>
+            <div style="display:flex;gap:0.5rem">
+              <Button label="Cancel" severity="secondary" outlined @click="closeEdit" />
+              <Button
+                :label="saving ? 'Saving...' : 'Save Changes'"
+                :icon="saving ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
+                class="save-btn"
+                :loading="saving"
+                @click="submitEdit"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </AppLayout>
 </template>
 
@@ -273,6 +360,12 @@ const submitting = ref(false)
 const posts = ref([])
 const fetching = ref(false)
 const deletingId = ref(null)
+const togglingId = ref(null)
+
+// Edit modal state
+const editingPost = ref(null)
+const editForm = ref({})
+const saving = ref(false)
 
 const editorMode = ref('edit')
 const uploading = ref(false)
@@ -368,7 +461,7 @@ const handleLogout = () => {
 const fetchPosts = async () => {
   fetching.value = true
   try {
-    const res = await postService.getAllPosts()
+    const res = await adminService.getAllPosts()
     posts.value = res.data
   } catch (err) {
     if (err.response?.status === 401 || err.response?.status === 403) {
@@ -468,29 +561,82 @@ const submitPost = async () => {
 
 const confirmDelete = async (post) => {
   if (!confirm(`Are you sure you want to delete "${post.title}"?`)) return
-  deletingId.value = post._id
+  deletingId.value = post.id
   try {
-    await adminService.deletePost(post._id)
-    toast.add({
-      severity: 'success',
-      summary: 'Deleted',
-      detail: 'Note removed successfully.',
-      life: 3000,
-    })
+    await adminService.deletePost(post.id)
+    toast.add({ severity: 'success', summary: 'Deleted', detail: 'Note removed successfully.', life: 3000 })
     fetchPosts()
   } catch (err) {
     if (err.response?.status === 401 || err.response?.status === 403) {
       handleLogout()
     } else {
-      toast.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to delete note.',
-        life: 3000,
-      })
+      toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete note.', life: 3000 })
     }
   } finally {
     deletingId.value = null
+  }
+}
+
+const togglePublish = async (post) => {
+  togglingId.value = post.id
+  try {
+    await adminService.updatePost(post.id, { isPublished: !post.isPublished })
+    toast.add({
+      severity: 'success',
+      summary: post.isPublished ? 'Unpublished' : 'Published',
+      detail: post.isPublished ? 'Moved to drafts.' : 'Post is now live.',
+      life: 2500,
+    })
+    fetchPosts()
+  } catch (err) {
+    toast.add({ severity: 'error', summary: 'Error', detail: 'Failed to update status.', life: 3000 })
+  } finally {
+    togglingId.value = null
+  }
+}
+
+const openEdit = (post) => {
+  editingPost.value = post
+  editForm.value = {
+    title: post.title,
+    slug: post.slug,
+    category: post.category,
+    tagsString: (post.tags || []).join(', '),
+    content: post.content,
+    isPublished: post.isPublished,
+  }
+}
+
+const closeEdit = () => {
+  editingPost.value = null
+  editForm.value = {}
+}
+
+const submitEdit = async () => {
+  if (!editForm.value.title || !editForm.value.content || !editForm.value.slug) {
+    toast.add({ severity: 'warn', summary: 'Validation', detail: 'Title, Slug, and Content are required.', life: 3000 })
+    return
+  }
+  saving.value = true
+  try {
+    const tags = editForm.value.tagsString
+      ? editForm.value.tagsString.split(',').map(t => t.trim().toLowerCase()).filter(t => t)
+      : []
+    await adminService.updatePost(editingPost.value.id, {
+      title: editForm.value.title,
+      slug: editForm.value.slug,
+      category: editForm.value.category,
+      content: editForm.value.content,
+      tags,
+      isPublished: editForm.value.isPublished,
+    })
+    toast.add({ severity: 'success', summary: 'Saved', detail: 'Post updated successfully.', life: 3000 })
+    closeEdit()
+    fetchPosts()
+  } catch (err) {
+    toast.add({ severity: 'error', summary: 'Error', detail: err.response?.data?.error || 'Failed to update.', life: 3000 })
+  } finally {
+    saving.value = false
   }
 }
 
@@ -1103,6 +1249,96 @@ onMounted(() => {
   background: rgba(239, 83, 80, 0.1) !important;
   border-color: #ef5350 !important;
 }
+
+/* ── Post row actions ── */
+.post-row-actions {
+  display: flex;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.action-btn {
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.status--live {
+  background: rgba(34,197,94,0.12);
+  color: #16a34a;
+  border: 1px solid rgba(34,197,94,0.25);
+}
+
+.status--draft {
+  background: var(--mn-surface-2);
+  color: var(--mn-text-subtle);
+  border: 1px solid var(--mn-border);
+}
+
+/* ── Edit Modal ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.modal-box {
+  background: var(--mn-surface);
+  border: 1px solid var(--mn-border);
+  border-radius: var(--mn-radius);
+  width: min(100%, 720px);
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 1.75rem;
+  box-shadow: var(--mn-shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--mn-border);
+}
+
+.modal-header h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: var(--mn-text-muted);
+  font-size: 1rem;
+  padding: 0.25rem;
+  border-radius: var(--mn-radius-xs);
+  transition: color var(--mn-transition);
+}
+
+.modal-close:hover { color: var(--mn-text); }
 
 /* ── Responsive dashboard ── */
 @media (max-width: 900px) {

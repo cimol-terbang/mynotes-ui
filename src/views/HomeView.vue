@@ -335,40 +335,28 @@ onMounted(fetchPosts)
   overflow: hidden;
 }
 
-/* top-right decorative circle blob */
-.post-card::after {
-  content: '';
-  position: absolute;
-  top: -18px;
-  right: -18px;
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  opacity: 0.12;
-  transition: opacity var(--mn-transition);
-  pointer-events: none;
-}
+/* colored top border per category */
+.post-card--essay { border-top: 2.5px solid #3b82f6; }
+.post-card--poem  { border-top: 2.5px solid #ec4899; }
+.post-card--story { border-top: 2.5px solid #22c55e; }
 
-.post-card--essay::after { background: #3b82f6; }
-.post-card--poem::after  { background: #ec4899; }
-.post-card--story::after { background: #22c55e; }
-
-/* bottom-left small dot accent */
+/* subtle gradient wash from top */
 .post-card::before {
   content: '';
   position: absolute;
-  bottom: 10px;
-  left: 10px;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  opacity: 0.25;
+  inset: 0;
   pointer-events: none;
+  border-radius: inherit;
+  opacity: 0.045;
+  transition: opacity var(--mn-transition);
 }
 
-.post-card--essay::before { background: #3b82f6; }
-.post-card--poem::before  { background: #ec4899; }
-.post-card--story::before { background: #22c55e; }
+.post-card--essay::before { background: linear-gradient(160deg, #3b82f6 0%, transparent 55%); }
+.post-card--poem::before  { background: linear-gradient(160deg, #ec4899 0%, transparent 55%); }
+.post-card--story::before { background: linear-gradient(160deg, #22c55e 0%, transparent 55%); }
+
+/* remove old circle blobs */
+.post-card::after { display: none; }
 
 .post-card:hover {
   transform: translateY(-3px);
@@ -376,7 +364,7 @@ onMounted(fetchPosts)
   border-color: var(--mn-accent);
 }
 
-.post-card:hover::after { opacity: 0.2; }
+.post-card:hover::before { opacity: 0.08; }
 
 .post-card__cat {
   display: flex;

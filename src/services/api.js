@@ -87,8 +87,16 @@ export const adminService = {
     return adminApi.post('/admin/login', { password })
   },
 
+  getAllPosts() {
+    return adminApi.get('/admin/posts')
+  },
+
   createPost(postData) {
     return adminApi.post('/admin/posts', postData)
+  },
+
+  updatePost(postId, postData) {
+    return adminApi.put(`/admin/posts/${postId}`, postData)
   },
 
   deletePost(postId) {
@@ -98,8 +106,6 @@ export const adminService = {
   uploadImage(imageFile) {
     const formData = new FormData()
     formData.append('image', imageFile)
-    // Do NOT set Content-Type manually — axios auto-sets multipart/form-data
-    // with the correct boundary when FormData is passed
     return adminApi.post('/admin/upload', formData)
   },
 }

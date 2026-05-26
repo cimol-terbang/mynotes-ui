@@ -71,7 +71,7 @@
 
         <!-- Comments list -->
         <div v-else-if="comments.length" class="comments__list">
-          <div v-for="c in comments" :key="c._id" class="comment">
+          <div v-for="c in comments" :key="c.id" class="comment">
             <Avatar :label="c.name[0].toUpperCase()" shape="circle" class="comment__avatar" />
             <div class="comment__body">
               <div class="comment__header">
@@ -191,7 +191,7 @@ const fetchComments = async () => {
   if (!post.value) return
   commentsLoading.value = true
   try {
-    const res = await commentService.getCommentsByPost(post.value._id)
+    const res = await commentService.getCommentsByPost(post.value.id)
     comments.value = res.data
   } catch {
     // silent fail
@@ -204,7 +204,7 @@ const submitComment = async () => {
   submitting.value = true
   try {
     await commentService.createComment({
-      postId: post.value._id,
+      postId: post.value.id,
       name: form.value.name.trim() || 'Anonymous',
       content: form.value.content,
     })
